@@ -69,9 +69,9 @@ public enum StreamLogUidTransformer {
     Connection conn = null;
     PreparedStatement pstmt = null;
     ResultSet rs = null;
-    StringBuilder sql = new StringBuilder("select t.id, t.orig_id from vf_");
+    StringBuilder sql = new StringBuilder("select t.id, t.orig_id from `vf_");
     sql.append(projectId);
-    sql.append(".id_map as t where t.id in (");
+    sql.append("`.id_map as t where t.id in (");
     sql.append(uids[0]);
     char comma = ',';
     for (int i = 1; i < uids.length; i++) {
@@ -173,14 +173,14 @@ public enum StreamLogUidTransformer {
   }
 
   public static void main(String[] args) throws IOException, SQLException {
-    String uidfile = "D:/misc/fhw.lang.en_us.last_login.20140101.log.truncated", projectId = "fhw";
-    StreamLogUidTransformer.INSTANCE.transform(projectId, uidfile, false);
-//    int dateInt = 20140101;
-//    String uidfile, projectId = "fhw";
-//    for (int i = 0; i < 12; i++) {
-//      uidfile = "D:/misc/fhw.first_pay_time.uid/fhw.first_pay_time.uid." + (dateInt + i) + ".truncated";
-//      StreamLogUidTransformer.INSTANCE.transform(projectId, uidfile, false);
-//    }
+//    String uidfile = "D:/misc/fhw.lang.en_us.last_login.20140101.log.truncated", projectId = "fhw";
+//    StreamLogUidTransformer.INSTANCE.transform(projectId, uidfile, false);
+    List<Long> uids = new ArrayList<>();
+    uids.add(3661776l);
+    uids.add(3663472l);
+    uids.add(595712l);
+
+    System.out.println(StreamLogUidTransformer.INSTANCE.transform("sof-isafe", uids, false));
 
   }
 
