@@ -38,12 +38,16 @@ public class HbaseMysqlUIDTruncator {
     final String uidKeywords = "uid";
     final char c = '\n';
     File f = new File(fileInputPath);
-    File f2 = new File(fileInputPath + ".truncated");
+    File f2 = new File(f.getParentFile() + "/truncated");
+    if (!f2.exists()) {
+      f2.mkdir();
+    }
+    File f3 = new File(f2.getAbsolutePath() + "/" + f.getName());
     String line;
     long uid;
     byte[] bytes, newBytes;
     try (BufferedReader br = new BufferedReader(new FileReader(f)); PrintWriter pw = new PrintWriter(
-      new FileWriter(f2));) {
+      new FileWriter(f3));) {
       while ((line = br.readLine()) != null) {
         if (uidKeywords.equals(line)) {
           continue;
@@ -60,11 +64,18 @@ public class HbaseMysqlUIDTruncator {
   }
 
   public static void main(String[] args) throws Exception {
-    truncate("D:/misc/fhw.lang.en_us.last_login.20140101.log");
-//    int dateInt = 20140101;
-//    String filePath = "D:/misc/fhw.first_pay_time.uid/fhw.first_pay_time.uid.";
-//    for (int i = 0; i < 12; i++) {
-//      truncate(filePath + (dateInt + i));
-//    }
+    if (args == null || args.length < 1) {
+      System.out.println("No param.");
+      System.exit(1);
+    }
+    String uidRoot = args[0];
+    File uidRootFile = new File(uidRoot);
+    File[] files = uidRootFile.listFiles();
+    for (File f : files) {
+      if (f.isDirectory()) {
+        continue;
+      }
+      truncate(f.getAbsolutePath());
+    }
   }
 }

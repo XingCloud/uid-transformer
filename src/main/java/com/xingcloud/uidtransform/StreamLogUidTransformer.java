@@ -130,16 +130,20 @@ public enum StreamLogUidTransformer {
 
   public void transform(String projectId, String inputInternalUIDFilePath, boolean debug) throws IOException,
     SQLException {
-    String outputOriginalUIDPath = inputInternalUIDFilePath + ".original";
+    File inputFile = new File(inputInternalUIDFilePath);
+    File oriPath = new File(inputFile.getParent() + "/original");
+    if (!oriPath.exists()) {
+      oriPath.mkdir();
+    }
+    File output = new File(oriPath.getAbsolutePath() + "/" + inputFile.getName());
     String line;
     long[] internalUIDs = new long[BATCH_SIZE];
     int counter = 0;
     String[] originalUIDs;
     int fileLines = FileUtils.count(inputInternalUIDFilePath), sum = 0;
     String percent, lastPercent = null;
-    try (BufferedReader br = new BufferedReader(
-      new FileReader(new File(inputInternalUIDFilePath))); PrintWriter pw = new PrintWriter(
-      new FileWriter(new File(outputOriginalUIDPath)))) {
+    try (BufferedReader br = new BufferedReader(new FileReader(inputFile)); PrintWriter pw = new PrintWriter(
+      new FileWriter(output))) {
 
       while ((line = br.readLine()) != null) {
         if (StringUtils.isBlank(line) || "uid".equals(line)) {
@@ -173,15 +177,23 @@ public enum StreamLogUidTransformer {
   }
 
   public static void main(String[] args) throws IOException, SQLException {
-//    String uidfile = "D:/misc/fhw.lang.en_us.last_login.20140101.log.truncated", projectId = "fhw";
-//    StreamLogUidTransformer.INSTANCE.transform(projectId, uidfile, false);
-    List<Long> uids = new ArrayList<>();
-    uids.add(3661776l);
-    uids.add(3663472l);
-    uids.add(595712l);
-
-    System.out.println(StreamLogUidTransformer.INSTANCE.transform("sof-isafe", uids, false));
-
+    if (args == null || args.length < 1) {
+      System.out.println("No param.");
+      System.exit(1);
+    }
+    File uidFileRoot = new File(args[0]);
+    File[] files = uidFileRoot.listFiles();
+    String projectId, fileName;
+    int i;
+    for (File file : files) {
+      if (file.isDirectory()) {
+        continue;
+      }
+      fileName = file.getName();
+      System.out.println(fileName);
+      i = fileName.indexOf(".");
+      projectId = fileName.substring(0, i);
+      StreamLogUidTransformer.INSTANCE.transform(projectId, file.getAbsolutePath(), false);
+    }
   }
-
 }
