@@ -70,12 +70,16 @@ public class HbaseMysqlUIDTruncator {
     }
     String uidRoot = args[0];
     File uidRootFile = new File(uidRoot);
-    File[] files = uidRootFile.listFiles();
-    for (File f : files) {
-      if (f.isDirectory()) {
-        continue;
+    if (uidRootFile.isFile()) {
+      truncate(uidRootFile.getAbsolutePath());
+    } else {
+      File[] files = uidRootFile.listFiles();
+      for (File f : files) {
+        if (f.isDirectory()) {
+          continue;
+        }
+        truncate(f.getAbsolutePath());
       }
-      truncate(f.getAbsolutePath());
     }
   }
 }

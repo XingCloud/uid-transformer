@@ -177,23 +177,25 @@ public enum StreamLogUidTransformer {
   }
 
   public static void main(String[] args) throws IOException, SQLException {
-    if (args == null || args.length < 1) {
+    if (args == null || args.length < 2) {
       System.out.println("No param.");
       System.exit(1);
     }
     File uidFileRoot = new File(args[0]);
-    File[] files = uidFileRoot.listFiles();
-    String projectId, fileName;
-    int i;
-    for (File file : files) {
-      if (file.isDirectory()) {
-        continue;
+    String projectId = args[1], fileName;
+
+    if (uidFileRoot.isFile()) {
+      StreamLogUidTransformer.INSTANCE.transform(projectId, uidFileRoot.getAbsolutePath(), false);
+    } else {
+      File[] files = uidFileRoot.listFiles();
+      for (File file : files) {
+        if (file.isDirectory()) {
+          continue;
+        }
+        fileName = file.getName();
+        System.out.println(fileName);
+        StreamLogUidTransformer.INSTANCE.transform(projectId, file.getAbsolutePath(), false);
       }
-      fileName = file.getName();
-      System.out.println(fileName);
-      i = fileName.indexOf(".");
-      projectId = fileName.substring(0, i);
-      StreamLogUidTransformer.INSTANCE.transform(projectId, file.getAbsolutePath(), false);
     }
   }
 }
