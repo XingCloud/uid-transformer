@@ -69,8 +69,12 @@ public class UidJoiner {
           continue;
         }
         index = line.hashCode() % part;
-        writers[index].write(line);
-        writers[index].write('\n');
+        try {
+          writers[index].write(line);
+          writers[index].write('\n');
+        } catch (Exception e) {
+          System.out.println("Error index: " + index);
+        }
       }
     } finally {
       for (PrintWriter pw : writers) {
