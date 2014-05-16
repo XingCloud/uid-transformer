@@ -68,7 +68,7 @@ public class UidJoiner {
         if (StringUtils.isBlank(line)) {
           continue;
         }
-        index = line.hashCode() % part;
+        index = Math.abs(line.hashCode() % part);
         try {
           writers[index].write(line);
           writers[index].write('\n');
