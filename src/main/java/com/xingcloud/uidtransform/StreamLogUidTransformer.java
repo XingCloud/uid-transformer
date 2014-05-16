@@ -143,7 +143,7 @@ public enum StreamLogUidTransformer {
     long[] internalUIDs = new long[BATCH_SIZE];
     int counter = 0;
     String[] originalUIDs;
-    int fileLines = FileUtils.count(inputInternalUIDFilePath), sum = 0;
+    int fileLines = XAFileUtils.count(inputInternalUIDFilePath), sum = 0;
     String percent, lastPercent = null;
     try (BufferedReader br = new BufferedReader(new FileReader(inputFile)); PrintWriter pw = new PrintWriter(
       new FileWriter(output))) {
@@ -157,7 +157,7 @@ public enum StreamLogUidTransformer {
           writeString(originalUIDs, pw);
           counter = 0;
           sum += BATCH_SIZE;
-          percent = FileUtils.percent(sum, fileLines);
+          percent = XAFileUtils.percent(sum, fileLines);
           if (!percent.equals(lastPercent)) {
             System.out.println("[" + percent + "]");
             lastPercent = percent;
@@ -172,7 +172,7 @@ public enum StreamLogUidTransformer {
       writeString(originalUIDs, pw);
 
       sum += counter;
-      percent = FileUtils.percent(sum, fileLines);
+      percent = XAFileUtils.percent(sum, fileLines);
       if (!percent.equals(lastPercent)) {
         System.out.println("[" + percent + "]");
       }

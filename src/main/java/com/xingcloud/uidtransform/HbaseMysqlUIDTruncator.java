@@ -26,10 +26,10 @@ public class HbaseMysqlUIDTruncator {
     byte[] bytes, newBytes;
     Long[] resultUIDs = new Long[hashedUIDs.length];
     for (int i = 0; i < hashedUIDs.length; i++) {
-      bytes = FileUtils.toBytes(hashedUIDs[i]);
+      bytes = XAFileUtils.toBytes(hashedUIDs[i]);
       newBytes = new byte[bytes.length];
       System.arraycopy(bytes, 4, newBytes, 4, 4);
-      resultUIDs[i] = FileUtils.toLong(newBytes);
+      resultUIDs[i] = XAFileUtils.toLong(newBytes);
     }
     return resultUIDs;
   }
@@ -53,10 +53,10 @@ public class HbaseMysqlUIDTruncator {
           continue;
         }
         uid = Long.parseLong(line.trim());
-        bytes = FileUtils.toBytes(uid);
+        bytes = XAFileUtils.toBytes(uid);
         newBytes = new byte[bytes.length];
         System.arraycopy(bytes, 4, newBytes, 4, 4);
-        uid = FileUtils.toLong(newBytes);
+        uid = XAFileUtils.toLong(newBytes);
         pw.write(String.valueOf(uid));
         pw.write(c);
       }

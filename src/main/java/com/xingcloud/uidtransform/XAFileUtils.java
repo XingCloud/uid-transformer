@@ -9,7 +9,7 @@ import java.text.DecimalFormat;
 /**
  * User: Z J Wu Date: 14-1-8 Time: 上午9:55 Package: com.xingcloud.uidtransform
  */
-public class FileUtils {
+public class XAFileUtils {
 
   private static final DecimalFormat DF = new DecimalFormat("0.0");
 
