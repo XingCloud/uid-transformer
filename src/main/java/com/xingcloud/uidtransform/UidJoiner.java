@@ -31,6 +31,7 @@ public class UidJoiner {
   }
 
   private static void joinUID(File left, File right, File out) throws IOException {
+    System.out.println("Joining, left=" + left.getAbsolutePath() + ", right=" + right.getAbsolutePath());
     Set<String> leftSet = new HashSet<>(1000);
     Set<String> rightSet = new HashSet<>(1000);
     LineIterator li = FileUtils.lineIterator(left);
@@ -56,6 +57,7 @@ public class UidJoiner {
     }
     for (int i = 0; i < part; i++) {
       partFiles[i] = new File(tmp + File.separatorChar + name + getSuffix(i));
+      System.out.println("Part file of " + file.getName() + " - " + partFiles[i].getAbsolutePath());
       writers[i] = new PrintWriter(new OutputStreamWriter(new FileOutputStream(partFiles[i])));
     }
     String line;
@@ -89,6 +91,11 @@ public class UidJoiner {
     outPath = args[2];
     long batchSize = OneMB * Long.valueOf(args[3]);
 
+    System.out.println("[LEFT-FILE]=" + left);
+    System.out.println("[RIGHT-FILE]=" + right);
+    System.out.println("[OUT-FILE]=" + outPath);
+    System.out.println("[MAX-MEM]=" + (batchSize / 1024 / 1024) + " mb");
+
     File leftFile = new File(left);
     long leftFileLength = leftFile.length();
     File rightFile = new File(right);
@@ -96,6 +103,8 @@ public class UidJoiner {
     long bigOne = Math.max(leftFileLength, rightFileLength);
     long i = bigOne / batchSize;
     int partNumber = (int) ((bigOne % batchSize == 0) ? i : (i + 1));
+    System.out.println("[PARTS]=" + partNumber);
+
     File[] leftFiles = splitFile(leftFile, partNumber);
     File[] rightFiles = splitFile(rightFile, partNumber);
     String outFileName = leftFile.getName() + ".join." + rightFile.getName();
@@ -107,5 +116,6 @@ public class UidJoiner {
     for (int j = 0; j < i; j++) {
       joinUID(leftFiles[j], rightFiles[j], out);
     }
+    System.out.println("All done");
   }
 }
