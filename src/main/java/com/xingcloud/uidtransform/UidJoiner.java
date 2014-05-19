@@ -23,6 +23,10 @@ import java.util.Set;
  * User: Z J Wu Date: 14-5-16 Time: 下午1:46 Package: com.xingcloud.uidtransform
  */
 public class UidJoiner {
+  public static enum JoinType {
+    INNER, ANTI
+  }
+
   private static final DecimalFormat df = new DecimalFormat("00000");
   private static final String PART_KEYWORD = "part";
 
@@ -30,8 +34,8 @@ public class UidJoiner {
     return "." + PART_KEYWORD + df.format(i);
   }
 
-  private static void joinUID(File left, File right, File out) throws IOException {
-    System.out.println("Joining, left=" + left.getAbsolutePath() + ", right=" + right.getAbsolutePath());
+  private static void joinUID(JoinType joinType, File left, File right, File out) throws IOException {
+    System.out.println("L(" + left.getAbsolutePath() + ") [" + joinType + " JOIN] R(" + right.getAbsolutePath() + ")");
     Set<String> leftSet = new HashSet<>(1000);
     Set<String> rightSet = new HashSet<>(1000);
     LineIterator li = FileUtils.lineIterator(left);
@@ -42,7 +46,17 @@ public class UidJoiner {
     while (li.hasNext()) {
       rightSet.add(li.next());
     }
-    FileUtils.writeLines(out, CollectionUtils.intersection(leftSet, rightSet), true);
+    switch (joinType) {
+      case INNER:
+        FileUtils.writeLines(out, CollectionUtils.intersection(leftSet, rightSet), true);
+        break;
+      case ANTI:
+        leftSet.removeAll(rightSet);
+        FileUtils.writeLines(out, leftSet, true);
+        break;
+      default:
+        FileUtils.writeLines(out, CollectionUtils.intersection(leftSet, rightSet), true);
+    }
   }
 
   public static File[] splitFile(File file, int part) throws IOException {
@@ -94,10 +108,15 @@ public class UidJoiner {
     right = args[1];
     outPath = args[2];
     long batchSize = OneMB * Long.valueOf(args[3]);
+    JoinType joinType = JoinType.INNER;
+    if (args.length == 5) {
+      joinType = Enum.valueOf(JoinType.class, args[4]);
+    }
 
     System.out.println("[LEFT-FILE]=" + left);
     System.out.println("[RIGHT-FILE]=" + right);
     System.out.println("[OUT-FILE]=" + outPath);
+    System.out.println("[JOIN-TYPE]=" + joinType);
     System.out.println("[MAX-MEM]=" + (batchSize / 1024 / 1024) + " mb");
 
     File leftFile = new File(left);
@@ -118,7 +137,7 @@ public class UidJoiner {
       out.delete();
     }
     for (int j = 0; j < i; j++) {
-      joinUID(leftFiles[j], rightFiles[j], out);
+      joinUID(joinType, leftFiles[j], rightFiles[j], out);
     }
     System.out.println("All done");
   }
