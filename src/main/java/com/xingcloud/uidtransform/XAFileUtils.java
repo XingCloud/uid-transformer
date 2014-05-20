@@ -1,9 +1,18 @@
 package com.xingcloud.uidtransform;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.text.DecimalFormat;
 
 /**
@@ -11,7 +20,8 @@ import java.text.DecimalFormat;
  */
 public class XAFileUtils {
 
-  private static final DecimalFormat DF = new DecimalFormat("0.0");
+  private static final DecimalFormat DF_PART = new DecimalFormat("00000");
+  private static final String PART_KEYWORD = "part";
 
   public static final int FILE_READ_BUFFERED_SIZE = 4096;
 
@@ -73,6 +83,49 @@ public class XAFileUtils {
       l ^= bytes[i] & 0xFF;
     }
     return l;
+  }
+
+  private static String getSuffix(int i) {
+    return "." + PART_KEYWORD + DF_PART.format(i);
+  }
+
+  public static File[] splitFile(File file, int part) throws IOException {
+    File[] partFiles = new File[part];
+    PrintWriter[] writers = new PrintWriter[part];
+    String parent = file.getParent();
+    String name = file.getName();
+    String tmp = parent + File.separatorChar + "tmp";
+    File tmpFile = new File(tmp);
+    if (!tmpFile.exists()) {
+      tmpFile.mkdir();
+    }
+    for (int i = 0; i < part; i++) {
+      partFiles[i] = new File(tmp + File.separatorChar + name + getSuffix(i));
+      System.out.println("Part file of " + file.getName() + " - " + partFiles[i].getAbsolutePath());
+      writers[i] = new PrintWriter(new OutputStreamWriter(new FileOutputStream(partFiles[i])));
+    }
+    String line;
+    int index;
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
+      while ((line = br.readLine()) != null) {
+        line = StringUtils.trimToNull(line);
+        if (StringUtils.isBlank(line)) {
+          continue;
+        }
+        index = Math.abs(line.hashCode() % part);
+        try {
+          writers[index].write(line);
+          writers[index].write('\n');
+        } catch (Exception e) {
+          System.out.println("Error index: " + index);
+        }
+      }
+    } finally {
+      for (PrintWriter pw : writers) {
+        IOUtils.closeQuietly(pw);
+      }
+    }
+    return partFiles;
   }
 
   public static void main(String[] args) throws IOException {
