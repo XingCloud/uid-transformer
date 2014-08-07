@@ -20,8 +20,8 @@ public class UidJoiner {
 
   private static void joinUID(JoinType joinType, File left, File right, File out) throws IOException {
     System.out.println(left.getAbsolutePath() + " [" + joinType + " JOIN] " + right.getAbsolutePath());
-    Set<String> leftSet = new HashSet<>(1000);
-    Set<String> rightSet = new HashSet<>(1000);
+    Set<String> leftSet = new HashSet<String>(1000);
+    Set<String> rightSet = new HashSet<String>(1000);
     LineIterator li = FileUtils.lineIterator(left);
     while (li.hasNext()) {
       leftSet.add(li.next());

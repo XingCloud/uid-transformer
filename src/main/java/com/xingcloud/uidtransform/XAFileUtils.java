@@ -29,8 +29,9 @@ public class XAFileUtils {
     byte[] c = new byte[FILE_READ_BUFFERED_SIZE];
     int count = 0, readChars;
     boolean empty = true;
-    try (InputStream is = new BufferedInputStream(new FileInputStream(filename));) {
-      while ((readChars = is.read(c)) != -1) {
+    try {
+        InputStream is = new BufferedInputStream(new FileInputStream(filename));
+        while ((readChars = is.read(c)) != -1) {
         empty = false;
         for (int i = 0; i < readChars; ++i) {
           if (c[i] == '\n') {
@@ -38,8 +39,11 @@ public class XAFileUtils {
           }
         }
       }
-      return (count == 0 && !empty) ? 1 : count;
+
+    } catch (IOException e) {
+        e.printStackTrace();
     }
+    return (count == 0 && !empty) ? 1 : count;
   }
 
   public static String percent(int sum, int total) {
@@ -106,7 +110,8 @@ public class XAFileUtils {
     }
     String line;
     int index;
-    try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
+    try {
+        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
       while ((line = br.readLine()) != null) {
         line = StringUtils.trimToNull(line);
         if (StringUtils.isBlank(line)) {

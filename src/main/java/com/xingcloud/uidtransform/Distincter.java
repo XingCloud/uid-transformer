@@ -17,7 +17,7 @@ public class Distincter {
 
   public static void distinct(File input, File output) throws IOException {
     System.out.println("Distinct " + input.getAbsolutePath() + " into " + output.getAbsolutePath());
-    Set<String> set = new HashSet<>(1000);
+    Set<String> set = new HashSet<String>(1000);
     LineIterator li = FileUtils.lineIterator(input);
     while (li.hasNext()) {
       set.add(li.next());

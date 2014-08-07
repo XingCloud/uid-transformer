@@ -46,7 +46,7 @@ public enum StreamLogUidTransformer {
 
   private StreamLogUidTransformer() {
     ds = new BasicDataSource();
-    Collection<String> initSql = new ArrayList<>(1);
+    Collection<String> initSql = new ArrayList<String>(1);
     initSql.add("select 1;");
     ds.setConnectionInitSqls(initSql);
 
@@ -82,7 +82,7 @@ public enum StreamLogUidTransformer {
       sql.append(uids[i]);
     }
     sql.append(')');
-    Map<Long, String> idmap = new HashMap<>(uids.length);
+    Map<Long, String> idmap = new HashMap<Long, String>(uids.length);
     try {
       conn = ds.getConnection();
       pstmt = conn.prepareStatement(sql.toString());
@@ -145,12 +145,12 @@ public enum StreamLogUidTransformer {
     String[] originalUIDs;
     int fileLines = XAFileUtils.count(inputInternalUIDFilePath), sum = 0;
     String percent, lastPercent = null;
-    try (BufferedReader br = new BufferedReader(new FileReader(inputFile)); PrintWriter pw = new PrintWriter(
-      new FileWriter(output))) {
-
-      while ((line = br.readLine()) != null) {
-        if (StringUtils.isBlank(line) || "uid".equals(line)) {
-          continue;
+    try {
+        BufferedReader br = new BufferedReader(new FileReader(inputFile));
+        PrintWriter pw = new PrintWriter(new FileWriter(output));
+        while ((line = br.readLine()) != null) {
+            if (StringUtils.isBlank(line) || "uid".equals(line)) {
+            continue;
         }
         if (counter == BATCH_SIZE) {
           originalUIDs = executeSql(projectId, internalUIDs, debug);
@@ -176,6 +176,8 @@ public enum StreamLogUidTransformer {
       if (!percent.equals(lastPercent)) {
         System.out.println("[" + percent + "]");
       }
+    } catch (IOException e) {
+        e.printStackTrace();
     }
   }
 

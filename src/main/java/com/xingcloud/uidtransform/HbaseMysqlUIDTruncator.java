@@ -1,10 +1,6 @@
 package com.xingcloud.uidtransform;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,11 +42,12 @@ public class HbaseMysqlUIDTruncator {
     String line;
     long uid;
     byte[] bytes, newBytes;
-    try (BufferedReader br = new BufferedReader(new FileReader(f)); PrintWriter pw = new PrintWriter(
-      new FileWriter(f3));) {
-      while ((line = br.readLine()) != null) {
-        if (uidKeywords.equals(line)) {
-          continue;
+    try {
+        BufferedReader br = new BufferedReader(new FileReader(f));
+        PrintWriter pw = new PrintWriter(new FileWriter(f3));
+        while ((line = br.readLine()) != null) {
+            if (uidKeywords.equals(line)) {
+            continue;
         }
         uid = Long.parseLong(line.trim());
         bytes = XAFileUtils.toBytes(uid);
@@ -60,6 +57,8 @@ public class HbaseMysqlUIDTruncator {
         pw.write(String.valueOf(uid));
         pw.write(c);
       }
+    } catch (IOException e) {
+        e.printStackTrace();
     }
   }
 
