@@ -42,19 +42,21 @@ public class HbaseMysqlUIDTruncator {
     String line;
     long uid;
     byte[] bytes, newBytes;
+    String innerUid;    //add by wanghaixing, 输出innerUid, uid
     try {
         BufferedReader br = new BufferedReader(new FileReader(f));
         PrintWriter pw = new PrintWriter(new FileWriter(f3));
         while ((line = br.readLine()) != null) {
-            if (uidKeywords.equals(line)) {
+            if (uidKeywords.equals(line) || line.equals("")) {
             continue;
         }
-        uid = Long.parseLong(line.trim());
+        innerUid = line.trim();
+        uid = Long.parseLong(innerUid);
         bytes = XAFileUtils.toBytes(uid);
         newBytes = new byte[bytes.length];
         System.arraycopy(bytes, 4, newBytes, 4, 4);
         uid = XAFileUtils.toLong(newBytes);
-        pw.write(String.valueOf(uid));
+        pw.write(innerUid + "\t" + String.valueOf(uid));
         pw.write(c);
       }
     } catch (IOException e) {
